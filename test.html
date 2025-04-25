@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Погода Онлайн</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #e5f6fd;
+            margin: 0;
+            padding: 0;
+        }
+
+        .weather-container {
+            width: 360px;
+            margin: 50px auto;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 6px #90caf9;
+            padding: 30px 24px;
+            text-align: center;
+        }
+
+        .weather-title {
+            font-size: 22px;
+            margin-bottom: 14px;
+            color: #1976d2;
+        }
+
+        .weather-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        select {
+            padding: 6px;
+            font-size: 15px;
+            margin-bottom: 18px;
+        }
+
+        .weather-info {
+            font-size: 30px;
+            color: #1565c0;
+            margin-bottom: 10px;
+        }
+
+        .weather-desc {
+            font-size: 17px;
+            color: #526475;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="weather-container">
+        <div class="weather-title">Погода сейчас</div>
+        <select id="citySelect">
+            <option value="55.75,37.61">Москва</option>
+            <option value="59.93,30.31">Санкт-Петербург</option>
+            <option value="51.53,46.02">Саратов</option>
+            <option value="43.10,131.87">Владивосток</option>
+            <option value="56.84,60.61">Екатеринбург</option>
+        </select>
+        <div id="weatherIcon" class="weather-icon">🌤️</div>
+        <div id="weatherTemp" class="weather-info"></div>
+        <div id="weatherDesc" class="weather-desc"></div>
+    </div>
+
+    <script>
+        const iconMap = {
+            0: "☀️",    // ясно
+            1: "🌤️",    // в основном ясно
+            2: "⛅️",    // переменная облачность
+            3: "☁️",    // облачно
+            45: "🌫️",  // туман
+            48: "🌫️",
+            51: "🌦️",  // мелкий дождь
+            61: "🌧️",  // дождь
+            71: "🌨️",  // снег
+            80: "🌧️",
+            95: "⛈️"   // гроза
+        };
+
+        const descMap = {
+            0: "Ясно",
+            1: "Преимущественно ясно",
+            2: "Переменная облачность",
+            3: "Облачно",
+            45: "Туман",
+            48: "Туман",
+            51: "Мелкий дождь",
+            61: "Дождь",
+            71: "Снег",
+            80: "Ливень",
+            95: "Гроза"
+        };
+
+        function showWeather(lat, lon) {
+            fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
+                .then(res => res.json())
+                .then(data => {
+                    const w = data.current_weather;
+                    document.getElementById('weatherTemp').innerText = Math.round(w.temperature) + '°C';
+                    document.getElementById('weatherIcon').innerText = iconMap[w.weathercode] || "❓";
+                    document.getElementById('weatherDesc').innerText = descMap[w.weathercode] || "Нет данных";
+                });
+        }
+
+        const select = document.getElementById('citySelect');
+        function update() {
+            let [lat, lon] = select.value.split(",");
+            showWeather(lat, lon);
+        }
+        select.addEventListener('change', update);
+        update(); // загрузка при старте
+    </script>
+</body>
+
+</html>
